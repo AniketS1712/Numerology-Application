@@ -1,10 +1,11 @@
 package com.numerology.service;
 
 import java.io.IOException;
+
 import org.apache.pdfbox.pdmodel.*;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.font.Standard14Fonts;
-import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
 public class PDFGenerator {
 
@@ -12,7 +13,11 @@ public class PDFGenerator {
             String name,
             String dob,
             int lifePathNumber,
-            String meaning,
+            String career,
+            String relationship,
+            String health,
+            String money,
+            String characteristics,
             String filePath
     ) throws IOException {
 
@@ -24,16 +29,25 @@ public class PDFGenerator {
                 new PDPageContentStream(document, page);
 
         content.beginText();
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD), 16);
         content.setLeading(18f);
         content.newLineAtOffset(50, 750);
 
+        // Title
+        content.setFont(
+                new PDType1Font(Standard14Fonts.FontName.HELVETICA_BOLD),
+                16
+        );
         content.showText("Numerology Report");
         content.newLine();
         content.newLine();
 
-        content.setFont(new PDType1Font(Standard14Fonts.FontName.HELVETICA), 12);
+        // Body font
+        content.setFont(
+                new PDType1Font(Standard14Fonts.FontName.HELVETICA),
+                12
+        );
 
+        // Basic Info
         content.showText("Name: " + name);
         content.newLine();
 
@@ -44,18 +58,52 @@ public class PDFGenerator {
         content.newLine();
         content.newLine();
 
-        content.showText("Characteristics:");
+        // Career
+        content.showText("Career:");
+        content.newLine();
+        writeMultilineText(content, career);
         content.newLine();
 
-        for (String line : meaning.split("\n")) {
-            content.showText(line);
-            content.newLine();
-        }
+        // Relationships
+        content.showText("Relationships:");
+        content.newLine();
+        writeMultilineText(content, relationship);
+        content.newLine();
+
+        // Health
+        content.showText("Health:");
+        content.newLine();
+        writeMultilineText(content, health);
+        content.newLine();
+
+        // Money
+        content.showText("Money:");
+        content.newLine();
+        writeMultilineText(content, money);
+        content.newLine();
+
+        // Characteristics
+        content.showText("Characteristics:");
+        content.newLine();
+        writeMultilineText(content, characteristics);
 
         content.endText();
         content.close();
 
         document.save(filePath);
         document.close();
+    }
+
+    // Helper method for multiline text
+    private static void writeMultilineText(
+            PDPageContentStream content,
+            String text
+    ) throws IOException {
+
+        String[] lines = text.split("\\n");
+        for (String line : lines) {
+            content.showText(line);
+            content.newLine();
+        }
     }
 }

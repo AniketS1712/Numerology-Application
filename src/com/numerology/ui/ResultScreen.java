@@ -2,6 +2,8 @@ package com.numerology.ui;
 
 import javax.swing.*;
 import java.awt.*;
+
+import com.numerology.dao.Numerology;
 import com.numerology.service.NumerologyCalculator;
 import com.numerology.service.PDFGenerator;
 
@@ -24,7 +26,11 @@ public class ResultScreen extends JFrame {
         // ---------- NUMEROLOGY LOGIC ----------
         NumerologyCalculator calculator = new NumerologyCalculator();
         int lifePathNumber = calculator.calculateLifePathNumber(dob);
-        String meaning = calculator.getBasicMeaning(lifePathNumber);
+        String career = calculator.getCareerMeaning(lifePathNumber);
+        String relationship = calculator.getRelationshipMeaning(lifePathNumber);
+        String health = calculator.getHealthMeaning(lifePathNumber);
+        String money = calculator.getMoneyMeaning(lifePathNumber);
+        String characteristics = calculator.getCharacteristics(lifePathNumber);
 
         // ---------- RESULT TEXT ----------
         JTextArea resultArea = new JTextArea();
@@ -34,10 +40,13 @@ public class ResultScreen extends JFrame {
 
         resultArea.setText(
                 "Name: " + name +
-                "\nDate of Birth: " + dob +
-                "\n\nLife Path Number: " + lifePathNumber +
-                "\n\nCharacteristics:\n" + meaning
-        );
+                        "\nDate of Birth: " + dob +
+                        "\n\nLife Path Number: " + lifePathNumber +
+                        "\n\nCareer:\n" + career +
+                        "\n\nRelationships:\n" + relationship +
+                        "\n\nHealth:\n" + health +
+                        "\n\nMoney:\n" + money +
+                        "\n\nCharacteristics:\n" + characteristics);
 
         JScrollPane scrollPane = new JScrollPane(resultArea);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
@@ -49,21 +58,21 @@ public class ResultScreen extends JFrame {
                 String filePath = "Numerology_Report.pdf";
 
                 PDFGenerator.generateNumerologyPDF(
-                        name, dob, lifePathNumber, meaning, filePath
-                );
+                        name, dob, lifePathNumber, career, relationship, health, money, characteristics, filePath);
 
                 JOptionPane.showMessageDialog(
                         this,
-                        "PDF generated successfully:\n" + filePath
-                );
+                        "PDF generated successfully:\n" + filePath);
+
+                Numerology.saveResult(name, dob, lifePathNumber,
+                        career, relationship, health, money, characteristics);
 
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(
                         this,
                         "Error generating PDF",
                         "Error",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         });
 
@@ -79,10 +88,5 @@ public class ResultScreen extends JFrame {
         bottomPanel.add(backButton);
 
         getContentPane().add(bottomPanel, BorderLayout.SOUTH);
-    }
-
-    public static void main(String[] args) {
-        ResultScreen resultScreen = new ResultScreen("John Doe", "01-01-1990");
-        resultScreen.setVisible(true);
     }
 }
