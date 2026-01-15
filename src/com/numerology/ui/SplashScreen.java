@@ -9,14 +9,26 @@ public class SplashScreen extends JWindow {
     Timer timer;
 
     public SplashScreen() {
-        setSize(400, 250);
+        setSize(800, 550);
         setLocationRelativeTo(null);
 
-        JLabel label = new JLabel("Numerology Application", SwingConstants.CENTER);
-        label.setFont(label.getFont().deriveFont(18f));
+        getContentPane().setLayout(new BorderLayout());
 
-        add(label);
+        // Logo
+        ImageIcon logoIcon = new ImageIcon("images/logo.jpeg");
+        JLabel logoLabel = new JLabel(logoIcon, SwingConstants.CENTER);
 
+        // Title
+        JLabel titleLabel = new JLabel("Numerology", SwingConstants.CENTER);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(18f));
+
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(logoLabel, BorderLayout.CENTER);
+        centerPanel.add(titleLabel, BorderLayout.SOUTH);
+
+        getContentPane().add(centerPanel, BorderLayout.CENTER);
+
+        // Progress Bar
         progressBar = new JProgressBar(1, 100);
         progressBar.setStringPainted(true);
         this.getContentPane().add(progressBar, BorderLayout.SOUTH);
@@ -24,7 +36,7 @@ public class SplashScreen extends JWindow {
     }
 
     void loadProgress() {
-        timer = new Timer(30, e-> {
+        timer = new Timer(30, e -> {
             int val = progressBar.getValue();
             if (val < 100) {
                 progressBar.setValue(val + 1);

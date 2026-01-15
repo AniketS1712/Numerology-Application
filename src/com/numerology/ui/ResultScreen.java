@@ -4,72 +4,88 @@ import javax.swing.*;
 import java.awt.*;
 
 import com.numerology.dao.Numerology;
-import com.numerology.service.NumerologyCalculator;
-import com.numerology.service.PDFGenerator;
+import com.numerology.service.*;
 
 public class ResultScreen extends JFrame {
 
     public ResultScreen(String name, String dob) {
+
         setTitle("Numerology Result");
-        setSize(420, 300);
+        setSize(700, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
 
-        getContentPane().setLayout(new BorderLayout(10, 10));
+        setLayout(new BorderLayout(10, 10));
 
-        // ---------- TITLE ----------
-        JLabel titleLabel = new JLabel("Numerology Result", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        getContentPane().add(titleLabel, BorderLayout.NORTH);
+        // TITLE
+        JLabel titleLabel = new JLabel("Numerology & Zodiac Report", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        add(titleLabel, BorderLayout.NORTH);
 
-        // ---------- NUMEROLOGY LOGIC ----------
+        // LOGIC
         NumerologyCalculator calculator = new NumerologyCalculator();
+        NumerologyMeaning meaningService = new NumerologyMeaning();
+
         int lifePathNumber = calculator.calculateLifePathNumber(dob);
-        String career = calculator.getCareerMeaning(lifePathNumber);
-        String relationship = calculator.getRelationshipMeaning(lifePathNumber);
-        String health = calculator.getHealthMeaning(lifePathNumber);
-        String money = calculator.getMoneyMeaning(lifePathNumber);
-        String characteristics = calculator.getCharacteristics(lifePathNumber);
 
-        // ---------- RESULT TEXT ----------
-        JTextArea resultArea = new JTextArea();
-        resultArea.setEditable(false);
-        resultArea.setLineWrap(true);
-        resultArea.setWrapStyleWord(true);
+        String career = meaningService.career(lifePathNumber);
+        String relationship = meaningService.relationships(lifePathNumber);
+        String health = meaningService.health(lifePathNumber);
+        String money = meaningService.money(lifePathNumber);
+        String characteristics = meaningService.characteristics(lifePathNumber);
+        
+        ZodiacCalculator zodiacCalculator = new ZodiacCalculator();
+        ZodiacInfo zodiac = zodiacCalculator.getZodiac(dob);
 
-        resultArea.setText(
-                "Name: " + name +
-                        "\nDate of Birth: " + dob +
-                        "\n\nLife Path Number: " + lifePathNumber +
-                        "\n\nCareer:\n" + career +
-                        "\n\nRelationships:\n" + relationship +
-                        "\n\nHealth:\n" + health +
-                        "\n\nMoney:\n" + money +
-                        "\n\nCharacteristics:\n" + characteristics);
+        // CENTER PANEL (RESULTS)
+        JPanel resultPanel = new JPanel();
+        resultPanel.setLayout(new BoxLayout(resultPanel, BoxLayout.Y_AXIS));
+        resultPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        JScrollPane scrollPane = new JScrollPane(resultArea);
-        getContentPane().add(scrollPane, BorderLayout.CENTER);
+        resultPanel.add(createSection("Personal Details",
+                "Name: " + name,
+                "Date of Birth: " + dob));
 
-        // ---------- BUTTONS ----------
+        resultPanel.add(createSection("Numerology",
+                "Life Path Number: " + lifePathNumber,
+                "Career: " + career,
+                "Relationships: " + relationship,
+                "Health: " + health,
+                "Money: " + money,
+                "Characteristics: " + characteristics));
+
+        resultPanel.add(createSection("Zodiac Details",
+                "Zodiac Sign: " + zodiac.getZodiacSign(),
+                "Element: " + zodiac.getElement(),
+                "Ruling Planet: " + zodiac.getZodiacPlanet(),
+                "Vedic Rashi: " + zodiac.getVedicName(),
+                "Vedic Planet: " + zodiac.getVedicPlanet()));
+
+        JScrollPane scrollPane = new JScrollPane(resultPanel);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // BUTTONS
         JButton pdfButton = new JButton("Generate PDF");
         pdfButton.addActionListener(e -> {
             try {
                 String filePath = "Numerology_Report.pdf";
 
                 PDFGenerator.generateNumerologyPDF(
-                        name, dob, lifePathNumber, career, relationship, health, money, characteristics, filePath);
+                        name, dob, lifePathNumber,
+                        career, relationship, health, money, characteristics,
+                        filePath
+                );
 
-                JOptionPane.showMessageDialog(
-                        this,
-                        "PDF generated successfully:\n" + filePath);
+                Numerology.saveResult(
+                        name, dob, lifePathNumber,
+                        career, relationship, health, money, characteristics
+                );
 
-                Numerology.saveResult(name, dob, lifePathNumber,
-                        career, relationship, health, money, characteristics);
+                JOptionPane.showMessageDialog(this,
+                        "PDF generated successfully");
 
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(
-                        this,
+                JOptionPane.showMessageDialog(this,
                         "Error generating PDF",
                         "Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -82,11 +98,25 @@ public class ResultScreen extends JFrame {
             new InputScreen().setVisible(true);
         });
 
-        // ---------- BOTTOM PANEL ----------
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 5));
+        JPanel bottomPanel = new JPanel(new FlowLayout());
         bottomPanel.add(pdfButton);
         bottomPanel.add(backButton);
 
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    // SIMPLE SECTION METHOD
+    private JPanel createSection(String title, String... lines) {
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createTitledBorder(title));
+
+        for (String line : lines) {
+            panel.add(new JLabel(line));
+        }
+
+        panel.add(Box.createVerticalStrut(10));
+        return panel;
     }
 }

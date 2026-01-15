@@ -11,57 +11,121 @@ public class InputScreen extends JFrame {
     private JComboBox<Integer> yearBox;
 
     public InputScreen() {
-        setTitle("Numerology Input");
-        setSize(420, 320);
+        setTitle("Numerology Calculator");
+        setSize(500, 420);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setResizable(false);
-        // Use null layout
-        getContentPane().setLayout(null);
 
-        // Title
-        JLabel titleLabel = new JLabel("Numerology Calculator", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("", Font.BOLD, 16));
-        titleLabel.setBounds(100, 15, 220, 30);
-        add(titleLabel);
+        JPanel main = new JPanel(new BorderLayout());
+        main.add(createHeader(), BorderLayout.NORTH);
+        main.add(createAboutNumerology(), BorderLayout.CENTER);
+        main.add(createForm(), BorderLayout.SOUTH);
+        add(main);
+    }
 
-        // Name label & field
-        JLabel nameLabel = new JLabel("Enter Name:");
-        nameLabel.setBounds(40, 60, 100, 25);
-        add(nameLabel);
-        
-        nameField = new JTextField();
-        nameField.setBounds(150, 60, 200, 25);
-        add(nameField);
+    private JPanel createHeader() {
 
-        // DOB label
+        JPanel header = new JPanel();
+        header.setLayout(new BoxLayout(header, BoxLayout.Y_AXIS));
+        header.setBackground(Color.WHITE);
+        header.setBorder(BorderFactory.createEmptyBorder(15, 10, 10, 10));
+
+        JLabel title = new JLabel("Numerology Calculator", SwingConstants.CENTER);
+        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel subtitle = new JLabel(
+                "Enter your details to generate your Numerology and Zodiac report",
+                SwingConstants.CENTER);
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        subtitle.setForeground(Color.DARK_GRAY);
+        subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        header.add(title);
+        header.add(Box.createVerticalStrut(5));
+        header.add(subtitle);
+
+        return header;
+    }
+
+    private JPanel createAboutNumerology() {
+
+        JPanel aboutPanel = new JPanel(new BorderLayout());
+        aboutPanel.setBackground(Color.WHITE);
+        aboutPanel.setBorder(BorderFactory.createTitledBorder("Numerology"));
+
+        JTextArea aboutText = new JTextArea(
+                "Numerology is a belief system that studies the relationship between numbers " +
+                        "and human life. It is commonly used to analyze personality traits, career paths, " +
+                        "relationships, and life patterns based on a person’s date of birth.\n\n" +
+                        "This application uses the Life Path Number, calculated from the date of birth, " +
+                        "to generate numerology and zodiac-based insights.");
+
+        aboutText.setLineWrap(true);
+        aboutText.setWrapStyleWord(true);
+        aboutText.setEditable(false);
+        aboutText.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        aboutText.setBackground(Color.WHITE);
+        aboutText.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        aboutPanel.add(aboutText, BorderLayout.CENTER);
+
+        return aboutPanel;
+    }
+
+    private JPanel createForm() {
+        JPanel form = new JPanel();
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
+        form.setBackground(Color.WHITE);
+        form.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        // Name row
+        JPanel namePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        namePanel.setBackground(Color.WHITE);
+
+        JLabel nameLabel = new JLabel("Full Name:");
+        nameField = new JTextField(15);
+
+        namePanel.add(nameLabel);
+        namePanel.add(nameField);
+
+        // DOB row
+        JPanel dobPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        dobPanel.setBackground(Color.WHITE);
+
         JLabel dobLabel = new JLabel("Date of Birth:");
-        dobLabel.setBounds(40, 100, 100, 25);
-        add(dobLabel);
 
-        // Day box
         dayBox = new JComboBox<>();
-        dayBox.setBounds(150, 100, 60, 25);
         populateDay();
-        add(dayBox);
 
-        // Month box
         monthBox = new JComboBox<>();
-        monthBox.setBounds(220, 100, 70, 25);
         populateMonth();
-        add(monthBox);
 
-        // Year box
         yearBox = new JComboBox<>();
-        yearBox.setBounds(300, 100, 70, 25);
         populateYear();
-        add(yearBox);
 
-        // Submit button
+        dobPanel.add(dobLabel);
+        dobPanel.add(dayBox);
+        dobPanel.add(monthBox);
+        dobPanel.add(yearBox);
+
+        // Button row
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.WHITE);
+
         JButton submitButton = new JButton("Generate Numerology");
-        submitButton.setBounds(110, 160, 200, 30);
         submitButton.addActionListener(e -> handleSubmit());
-        add(submitButton);
+
+        buttonPanel.add(submitButton);
+
+        // Add all rows to form
+        form.add(namePanel);
+        form.add(Box.createVerticalStrut(15));
+        form.add(dobPanel);
+        form.add(Box.createVerticalStrut(20));
+        form.add(buttonPanel);
+
+        return form;
     }
 
     private void populateDay() {
@@ -101,7 +165,7 @@ public class InputScreen extends JFrame {
         return true;
     }
 
-    void handleSubmit() {
+    private void handleSubmit() {
         String name = nameField.getText().trim();
         int day = (int) dayBox.getSelectedItem();
         String month = (String) monthBox.getSelectedItem();
@@ -124,7 +188,6 @@ public class InputScreen extends JFrame {
 
         String dob = String.format("%02d-%s-%d", day, month, year);
         dispose();
-        ResultScreen resultScreen = new ResultScreen(name, dob);
-        resultScreen.setVisible(true);
+        new ResultScreen(name, dob).setVisible(true);
     }
 }
