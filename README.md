@@ -55,10 +55,3 @@ Numerology is an ancient system of interpretation that assigns meaning to number
 ![Input Screen](images/Input.png)
 ### Result Screen
 ![Result Screen](images/Result.png)
-
-### Setup (Run from Source)
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/AniketS1712/Numerology-Application.git
-   cd Numerology-Application
